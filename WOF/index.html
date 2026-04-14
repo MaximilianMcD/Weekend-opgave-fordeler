@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekend Opgaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>Weekend Opgave Planlægger <button onclick="openHelp()">?</button></header>
+<div class="container">
+
+    <div class="card">
+        <h3>Elever</h3>
+        <button class="secondary" onclick="openElevEditor()">Rediger elever</button>
+        <div id="elevList"></div>
+        <button class="secondary" onclick="vaelgAlle(true)">Vælg alle</button>
+        <button class="secondary" onclick="vaelgAlle(false)">Fravælg alle</button>
+        <br><br>
+        <button class="primary" onclick="fordel()">Generér plan</button>
+    </div>
+
+    <div class="card">
+        <h3>Plan <span id="fairness" class="badge"></span> <button class="secondary" onclick="openTaskEditor()">Rediger opgaver</button></h3>
+        <h4>Fredag</h4><table><tbody id="fredag"></tbody></table>
+        <h4>Lørdag</h4><table><tbody id="lordag"></tbody></table>
+        <h4>Søndag</h4><table><tbody id="sondag"></tbody></table>
+    </div>
+
+    <div class="card">
+        <h3>Data</h3>
+        <div id="data"></div>
+        <button class="danger" onclick="resetPoint()">Nulstil</button>
+    </div>
+
+
+</div>
+
+<!-- Elev Modal -->
+<div class="modal" id="elevModal"><div class="modal-content">
+    <h3>Elever</h3>
+    <div id="editorList"></div>
+    <input id="newElev" placeholder="Navn">
+    <button class="primary" onclick="addElev()">Tilføj</button>
+    <button onclick="closeElevModal()">Luk</button>
+</div></div>
+
+<!-- Task Modal -->
+<div class="modal" id="taskModal"><div class="modal-content">
+    <h3>Opgaver</h3>
+    <div id="taskList"></div>
+    <input id="tNavn" placeholder="Navn">
+    <input id="tPoint" type="number" placeholder="Point">
+    <input id="tCount" type="number" placeholder="Antal elever">
+    <select id="tDag">
+        <option value="alle">Alle</option>
+        <option value="weekend">Weekend</option>
+        <option value="søndag">Søndag</option>
+    </select>
+    <button class="primary" onclick="addTask()">Tilføj</button>
+    <button onclick="closeTaskModal()">Luk</button>
+</div></div>
+
+<!-- Help Modal -->
+<div class="modal" id="helpModal"><div class="help-content">
+    <button onclick="closeHelp()">Luk</button>
+    <h2>Instruktion til diverse funktioner</h2>
+    <h3>Hurtig gennemgang af programmet</h3>
+    <p>
+        Denne planlægger kan fordele elever ud på opgaver som du selv opretter.
+        <br>Ved hjælp af et point system vil dette program sørge for at eleverne vil blive fordelt på en fair og lige måde.
+        <br> Du har selv mulighed for at oprette, redigere og slette både opgave og elever samt redigere den oprettet fordelingsplan.
+    </p>
+    <h3>Fordelingsplanen</h3>
+    <p>
+        I midten finder du fordelingsplanen. Her vil planen over eleverne og deres opgaver vises når du trykker på den grønne 'Fordel' knap under elevlisten.
+        <br>Sker det at du gerne vil lave ændringer i planen kan du trykke på elevnavnet du vil ændre og vælge hvem du gerne vil der står i stedet.
+        <br>Point bliver automatisk rettet til at passe ændringerne. <i>(Bemærk at dette ikke bytter rundt men blot ændre så du skal redigere begge der skal byttes)</i>
+    </p>
+    <h3>Opgaver</h3>
+    <p>
+        Du kan redigere opgavelisten ved at trykke på knappen 'Rediger opgaver'.
+        <br>Knappen vil åbne en menu hvor du kan slette opgaver ved at trykke på 'X'. Derudover kan du oprette nye opgaver ved at udfylde felterne med:
+        <br>'Navn'. Navnet på opgaven. Gerne så kort og konkret som muligt for bedre overblik.
+        <br>'Point'. Antallet af point som opgave skal give. Dette baseres ud fra hvor svær og eller træls opgaven er, så jo flere point jo mere træls en opgave.
+        <br>'Antal elever'. Antallet af elever der skal bruges til opgaven. <i>(Bemærk at ved flere elever de vil stå i separate kasser ved fordeling)</i>
+    </p>
+    <h3>Elever</h3>
+    <p>
+        I venstre side finder du elevlisten. Her kan du krydse af hvilke elever der er til stede, og dermed skal have en opgave.
+        <br>For at redigere elevlisten skal du trykke på knappen 'Rediger elever'.
+        <br>Knappen vil åbne en menu hvor du kan slette elever ved at trykke på 'X'. Derudover kan du tilføje elever ved skrive navn og trykke 'Tilføj'
+    </p>
+    <h3>Data</h3>
+    <p>
+        I højre side finder du datalisten. Øverst vil elevernes point stå og nedenunder finder du historikken fra de sidste 5 datoer.
+        <br>Du kan nulstille <b>ALLES</b> point ved at trykke den røde 'Nulstil' knap. <i>(Bemærk dette sletter ikke historikken)</i>
+    </p>
+    <h3>Point</h3>
+    <p>
+        Når programmet fordeler eleverne ud på opgaver vil den så vidt som muligt prøve at udligne elevernes point. Dvs. en med lidt lavere point har større sandsynlighed for at få en opgave der giver højere point og omvendt.
+        <br>Hvis en elev ikke er markeret vil de stadig få det gennemsnitlige antal point af dem som er markeret. Så bare fordi man er fraværende ryger man ikke bagud.
+    </p>
+    <h3>Fairness score</h3>
+    <p>
+        I toppen af planen finder du fairness scoren. Denne skal du som udgangspunkt prøve at holde over 50%.
+        <br>Der er ingen grund til at gå efter 100% da dette ville være et scenarie hvor alle har præcis lige mange point. Oftest vil der være +- 1 til 2 point mellem elever.
+    </p>
+</div></div>
+
+<script src="script.js"></script>
+</body>
+</html>

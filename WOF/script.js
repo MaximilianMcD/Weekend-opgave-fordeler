@@ -1,6 +1,7 @@
 let elever=JSON.parse(localStorage.getItem("elever"))||["Anders And","Peter Plys"];
 let tasks=JSON.parse(localStorage.getItem("tasks"))||[{n:"Plukke Æbler",p:3,c:2,d:"alle"}];
 let data=JSON.parse(localStorage.getItem("data"))||{};
+let d=document.getElementById("elevList");d.innerHTML="";
 
 elever.forEach(e=>{if(!data[e])data[e]={point:0,historik:[],sidste:null}});
 
@@ -11,7 +12,6 @@ function save(){
 }
 
 function renderElev(){
-    let d=document.getElementById("elevList");d.innerHTML="";
     elever.forEach(e=>d.innerHTML+=`<div><input type=checkbox checked value="${e}"> ${e}</div>`);
 }
 
@@ -24,14 +24,6 @@ function visData(){
     Object.entries(data).forEach(([e,v])=>{
         d.innerHTML+=`${e} <span class='badge'>${v.point}p</span><br>`;
     });
-}
-
-function fairnessScore(){
-    let pts=Object.values(data).map(d=>d.point);
-    if(pts.length===0)return;
-    let max=Math.max(...pts),min=Math.min(...pts);
-    let score=100-(max-min)*10;
-    document.getElementById("fairness").innerText="Fairness: "+Math.max(0,score)+"%";
 }
 
 function getTasks(day){
@@ -76,41 +68,62 @@ function changeElev(opgave,newElev){
     save();visData();fairnessScore();
 }
 
-function fordel(){
-    let aktive=[...document.querySelectorAll("input:checked")].map(e=>e.value);
-    let inaktive=elever.filter(e=>!aktive.includes(e));
+function fordel() {
+    const aktiveIds = new Set(
+        [...document.querySelectorAll("#elevList input:checked")].map(e => e.value)
+    );
 
-    // beregn gennemsnit point
-    let total=0;
-    let count=0;
-    Object.values(data).forEach(d=>{total+=d.point; count++;});
-    let avg = count>0 ? Math.round(total/count) : 0;
+    const aktive = [];
+    const inaktive = [];
 
-    // giv fraværende gennemsnit
-    inaktive.forEach(e=>{
-        data[e].point = Math.round((data[e].point + avg) /1.75);
+    for (const elev of elever) {
+        if (aktiveIds.has(elev)) {
+            aktive.push(elev);
+        } else {
+            inaktive.push(elev);
+        }
+    }
+
+    // Gem start-point for aktive
+    const startPoint = {};
+    aktive.forEach(elev => {
+        startPoint[elev] = data[elev].point;
     });
 
-    let f = lavDag("fredag",aktive);
-    let l = lavDag("lørdag",aktive);
-    let s = lavDag("søndag",aktive);
+    // Fordel opgaver til aktive
+    let f = lavDag("fredag", aktive);
+    let l = lavDag("lørdag", aktive);
+    let s = lavDag("søndag", aktive);
 
-    render("fredag",f);
-    render("lordag",l);
-    render("sondag",s);
+    // Beregn hvor mange point aktive fik
+    let samletOptjent = 0;
 
-    gemWeekend({fredag:f,lørdag:l,søndag:s});
+    aktive.forEach(elev => {
+        samletOptjent += data[elev].point - startPoint[elev];
+    });
+
+    const gennemsnit = aktive.length ? Math.round(samletOptjent / aktive.length) : 0;
+
+    // Giv inaktive samme gennemsnit
+    inaktive.forEach(elev => {
+        data[elev].point += gennemsnit;
+    });
+
+    render("fredag", f);
+    render("lordag", l);
+    render("sondag", s);
+
+    gemWeekend({ fredag: f, lørdag: l, søndag: s });
 
     save();
     visData();
-    fairnessScore();
     visWeekender();
 }
 
 
 function resetPoint(){
     Object.values(data).forEach(d=>{d.point=0;d.historik=[];d.sidste=null});
-    save();visData();fairnessScore();
+    save();visData();
 }
 
 function openElevEditor(){document.getElementById("elevModal").style.display="flex";renderEditor();}
@@ -139,7 +152,7 @@ function addTask(){
 }
 function removeTask(i){tasks.splice(i,1);save();renderTasks();}
 
-renderElev();visData();fairnessScore();
+renderElev();visData();
 
 // --- GEM WEEKENDER ---
 let weekends = JSON.parse(localStorage.getItem("weekends")) || [];

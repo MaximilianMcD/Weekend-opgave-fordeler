@@ -23,7 +23,6 @@ Dette program er lavet til den efterskole jeg går på. Meningen er at det skal 
 
 * Hver opgave har point
 * Elever med mange point får lettere opgaver
-* Viser en fairness-score for hele planen
 
 ---
 
